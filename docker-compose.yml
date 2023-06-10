@@ -9,7 +9,7 @@ services:
         ports:
          - '3306:3306'
         volumes:
-         - ./src/mysql_seed/schema.sql:/docker-entrypoint-initdb.d/schema.sql
+         - ./components/mysql_seed/schema.sql:/docker-entrypoint-initdb.d/schema.sql
     app_node:
         container_name: app_node
         depends_on: 
