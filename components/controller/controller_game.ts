@@ -4,6 +4,7 @@ import * as Game from '../model/game';
 import * as User from '../model/user';
 import * as Move from '../model/move';
 import { Sequelize, Op } from "sequelize";
+import { Messages } from 'components/factory/message';
 
 const jwt = require('jsonwebtoken');
 
@@ -28,8 +29,9 @@ export async function CreateNewGame(req:any, res:any){
                 decreaseToken(req.body.player_2, 0.50);
                 // crea partita
                 Game.newGame(req.body.player_1,req.body.player_2);
+                return Messages.newGameCreate;
             }else{
-                console.log("token non necessari");
+                console.log("token non sufficenti");
             }
         }else if(req.body.player_2 === "IA"){
             if((User.getTokenByPlayer(req.body.player_1)) >= 0.75){
@@ -37,13 +39,14 @@ export async function CreateNewGame(req:any, res:any){
                 decreaseToken(req.body.player_1, 0.75);
                 // crea partita contro IA
                 Game.newGame(req.body.player_1,req.body.player_2);
+                return Messages.newGameCreate;
             }
 
         }else{
-            console.log("errore con avversario");
+            // console.log("errore con avversario");
         }
     }else{
-        console.log("errore con giocatore");
+        // console.log("errore con giocatore");
     }
     
     
@@ -51,17 +54,30 @@ export async function CreateNewGame(req:any, res:any){
 }
 
 // abbandona partita
-export async function AbbandonedGame(req:any, res:any){}
+export function AbbandonedGame(req:any, res:any):void{
+    /**
+     * req.body.game
+     * req.body.opponent
+     */
+    if(Game.getOpenGame(req.body.game)){
+        if(Game.getGame(req.body.opponent)){
+            Game.setAbandonedGame(req.body.game);
+            Game.setWinner(req.body.game,req.body.opponent);
+        }else{
+            // errore avversario non associato a partita
+        }
+    }else{
+        // errore partita non aperta 
+    }
+}
 
 // mostra informazioni sulla partita 
 export async function ShowInfoGame(req:any, res:any){}
 
+// decurta token 
 function decreaseToken(email_user:string, token:number):void {
     let player:any;
-    if(!email_user){
-        console.log('errore');
-    }else{
         player = User.Users.findByPk(email_user);
         player.decrement('token', {by: token})
-    }
+
 }

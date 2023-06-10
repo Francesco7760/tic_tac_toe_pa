@@ -31,6 +31,10 @@ export const Games = sequelize.define('games',{
         type: DataTypes.BOOLEAN,
         defaultValue: false
     },
+    game_abandoned:{
+        type: DataTypes.BOOLEAN,
+        defaultValue: false
+    },
     winner:{
         type: DataTypes.STRING,
         references:{
@@ -56,6 +60,28 @@ export async function newGame(Player1:string,Player2:string):Promise<void>{
         }); 
 }
 
+// get game by player
+export function getGame(Player:string):any{
+    let game:any
+    try{
+        game ==  Games.findAll({
+            raw:true,
+            where:{
+                [Op.or]:[
+                    {player_1: Player},
+                    {player_2: Player}
+                ]
+
+            }
+        })
+    }catch(err){
+        console.log(err);
+    }
+    if(!Player) return false;
+    if(game === true) return game;
+    else return false;
+}
+
 // set winner
 export async function setWinner(game:number, user_email:string):Promise<void>{
     await Games.update(
@@ -65,6 +91,7 @@ export async function setWinner(game:number, user_email:string):Promise<void>{
         }
     });
 }
+
 // get winner
 export async function getWinner(game:number):Promise<any>{
     let winner_game:any
@@ -95,10 +122,10 @@ export async function setOpenGame(game:number):Promise<void>{
 }
 
 // get open_game
-export async function getOpenGame(email:string):Promise<boolean>{
+export  function getOpenGame(email:string):any{
     let gameopen:any
     try{
-        gameopen == await Games.findAll({
+        gameopen ==  Games.findAll({
             raw:true,
             attributes: ['game_open'],
             where:{
@@ -162,4 +189,14 @@ export  function getOpenGameByPLayer(Player:any):any{
         console.log("errore");
     }
     return open_game_player;
+}
+
+// set game_abandoned game 
+export function setAbandonedGame(Game:string):void{
+     Games.update(
+        {game_id: Game},{
+        where:{
+            game_abandoned: 1
+        }
+    });
 }
