@@ -51,7 +51,7 @@ export async function newGame(Player1:string,Player2:string):Promise<void>{
         await Games.create({
             player_1: Player1,
             player_2: Player2,
-            game_open: true,
+            game_open: 0,
             turn: 0
         }); 
 }
@@ -142,4 +142,24 @@ export async function setTurn(game:number, turn_game :number):Promise<void>{
             turn: turn_game
         }
     });
+}
+
+// controlla se un giocatore ha partite aperte
+export  function getOpenGameByPLayer(Player:any):any{
+    let open_game_player:any;
+    if(Player != null){
+        open_game_player = Games.findAll({
+            where: {
+                [Op.and]: [
+                    { game_open: 0 }, {
+                        [Op.or]:[
+                            {player_1: Player},
+                            {player_2: Player}
+                        ]}],
+                    }
+        });
+    }else{
+        console.log("errore");
+    }
+    return open_game_player;
 }

@@ -41,8 +41,8 @@ export async function checkUserAdmin(user_email:string):Promise<boolean> {
 }
 
 // set nuovo giocatore
-export async function newPlayer(Email:string,Admin:boolean,Token:number):Promise<void>{
-    await Users.create({
+export function newPlayer(Email:string,Admin:boolean,Token:number):void{
+     Users.create({
         email:Email,
         admin_role:Admin,
         token:Token,
@@ -50,10 +50,10 @@ export async function newPlayer(Email:string,Admin:boolean,Token:number):Promise
 }
 
 // get token by player
-export async function getTokenByPlayer(user_email:string):Promise<any> {
+export function getTokenByPlayer(user_email:string):number {
     let token:any
     try{
-        token == await Users.findOne({
+        token ==  Users.findOne({
             raw:true,
             attributes: ['token'],
             where: {
@@ -62,8 +62,29 @@ export async function getTokenByPlayer(user_email:string):Promise<any> {
     }catch(err){
         console.log(err);
     }
-    if(!user_email) return null;
-    if(token === true) return token;
-    else return null;
+    if(!user_email) return 0;
+    if(token === null) return token;
+    else return 0;
 
 }
+
+// get player da email
+export function getPlayerByEmail(email_player:string):any {
+    let player:any;
+    try{
+        player == Users.findOne({
+            raw:true,
+            attributes: ['winner'],
+            where: {
+                email:email_player
+            }
+        })
+    }catch(err){
+        console.log(err);
+    }
+    if(!email_player) return null;
+    if(player !==  null) return player;
+    else return null;
+}
+
+

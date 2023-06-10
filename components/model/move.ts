@@ -8,7 +8,7 @@ const sequelize: Sequelize = db_connection.getConnection();
 /**
  * definizione del model 'move'
  */
-export const move = sequelize.define('moves', {
+export const Moves = sequelize.define('moves', {
     move_id:{
         type: DataTypes.INTEGER, 
         primaryKey:true, 
