@@ -19,9 +19,12 @@ CREATE TABLE games(
     player_2 varchar(100) NOT NULL,
     game_open BOOLEAN DEFAULT false,
     game_abandoned BOOLEAN DEFAULT false,
-    winner varchar(80), 
+    winner varchar(100), 
     turn INT DEFAULT 0,
-    PRIMARY KEY (game_id)
+    PRIMARY KEY (game_id),
+    FOREIGN KEY (player_1) REFERENCES users(email),
+    FOREIGN KEY (player_2) REFERENCES users(email),
+    FOREIGN KEY (winner) REFERENCES users(email)
 );
 
 CREATE TABLE moves(
@@ -29,14 +32,17 @@ CREATE TABLE moves(
     player varchar(100) NOT NULL,
     game INT NOT NULL,
     game_state JSON NOT NULL,
-    PRIMARY KEY (move_id)
+    start DATE NOT NULL,
+    PRIMARY KEY (move_id),
+    FOREIGN KEY (game) REFERENCES games(game_id),
+    FOREIGN KEY (player) REFERENCES users(email)
 );
 
-INSERT INTO users (email, admin_role, token, in_game)
+INSERT INTO users (email, admin_role, token)
 VALUES 
-('admin@email.com',0, 20, 0),
-('user_1@email.com',1, 20, 0),
-('user_2@email.com',1, 20, 1),
-('user_3@email.com',1,20, 1),
-('annachiara@mail.com', 1, 999, 1),
-('IA',1,99999, 1)
+('admin@email.com',0, 20),
+('user_1@email.com',1, 20),
+('user_2@email.com',1, 20),
+('user_3@email.com',1,20),
+('annachiara@mail.com', 1, 999),
+('IA',1,99999)
