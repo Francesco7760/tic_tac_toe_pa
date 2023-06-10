@@ -23,7 +23,11 @@ export const move = sequelize.define('moves', {
     },
     game_state:{
         type: DataTypes.JSON,
-        defaultValue: {}} 
+        defaultValue: {}} ,
+    start:{
+        type: DataTypes.DATEONLY,
+        allowNull:false
+    }
 },{
     modelName:'move'
 });
