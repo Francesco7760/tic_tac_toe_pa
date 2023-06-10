@@ -1,12 +1,16 @@
-const db_connection = require('src/singleton/db_connection');
-const userModel = require('src/model/user');
+import * as Connection from '../singleton/db_connection';
+import { Games } from '../model/game';
+import { Users } from '../model/user';
+import { Moves } from '../model/move';
 import { Sequelize } from "sequelize";
-import { Users } from "src/model/user";
 
-const sequelize: Sequelize = db_connection.getConnection();
+
+
+const sequelize: Sequelize = Connection.db_connection.getConnection();
 
 // classifica giocatori
-export async function ShowUserRanking(req:any, res:any){}
+export async function ShowUserRanking(req:any, res:any):Promise<any>{
+}
 
 // aggiungi token
 export async function AddToken(EmailPlayer:string, Token:number, Res:any):Promise<void>{
