@@ -47,7 +47,7 @@ export const verifyAndAuthenticate = (req: any, res: any, next: any) => {
 
 export const checkJwtPayload = (req: any, res: any, next: any) => {
     try{
-        if((req.user.role === 'admin' || req.user.role === 'admin') && req.user.email){
+        if(req.user.role  && req.user.email){
             next();
         }
     }catch(error){
