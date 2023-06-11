@@ -4,75 +4,87 @@ import * as Game from '../model/game';
 import * as User from '../model/user';
 import * as Move from '../model/move';
 import { Sequelize, Op } from "sequelize";
-import { Messages } from 'components/factory/message';
+import { MessagesEnum, getErrorMessage} from '../factory/message';
 
-const jwt = require('jsonwebtoken');
-
+//const jwt = require('jsonwebtoken');
 const sequelize: Sequelize = Connection.db_connection.getConnection();
+
+// mostra messagi di errore o successo
+function showMessage(Msg:MessagesEnum,res:any){
+    const msg = getErrorMessage(Msg).getMessage();
+    console.log(msg.code + ' : ' + msg.message);
+    res.status(msg.code).json(msg.message);
+}
 
 // crea una nuova partita da giocare
 export async function CreateNewGame(req:any, res:any){
 
-    const player = await User.Users.findByPk(req.body.player_1);
-    const opponent = await User.Users.findByPk(req.body.player_2);
-
-    // verifica se player 1 esite e non ha partite aperte
-    if(player !== null && Game.getOpenGameByPLayer(req.body.player_1) === null){
-
-        // verifica se contro player2 e se non ha partite aperte
-        if(req.body.player_2 !== "IA" && opponent !== null && Game.getOpenGameByPLayer(req.body.player_2) !== null){
-
-            //verifica se token sufficenti > 0.50
-            if((User.getTokenByPlayer(req.body.player_1)) >= 0.50 && (User.getTokenByPlayer(req.body.player_2) >= 0.50)){
+        // verifica se partita contro IA o utente
+        if(req.opponent.email === "IA"){
+            if(req.player.token >= 0.75){
                 // sottrai token
-                decreaseToken(req.body.player_1, 0.50);
-                decreaseToken(req.body.player_2, 0.50);
+                decreaseToken(req.body.player, 0.50);
                 // crea partita
-                Game.newGame(req.body.player_1,req.body.player_2);
-                return Messages.newGameCreate;
-            }else{
-                console.log("token non sufficenti");
+                Game.newGame(req.body.player, "IA", req.body.player);
             }
-        }else if(req.body.player_2 === "IA"){
-            if((User.getTokenByPlayer(req.body.player_1)) >= 0.75){
-                // sottrai token
-                decreaseToken(req.body.player_1, 0.75);
-                // crea partita contro IA
-                Game.newGame(req.body.player_1,req.body.player_2);
-                return Messages.newGameCreate;
+            else{
+                showMessage(MessagesEnum.checkTokenPlayerErr,res);
             }
-
         }else{
-            // console.log("errore con avversario");
-        }
-    }else{
-        // console.log("errore con giocatore");
+            if(req.player.token >= 0.75){
+                // sottrai token ad entrambi
+                decreaseToken(req.body.player, 0.75);
+                decreaseToken(req.body.opponent, 0.75);
+                // crea nuova partita
+                Game.newGame(req.body.player, req.body.opponent, req.body.player);
+                }
+                else{
+                    showMessage(MessagesEnum.checkTokenPlayerErr, res);
+                }
+            }
+            showMessage(MessagesEnum.gameCreateSuccess, res);
+}
+    
+
+// controlla se un giocatore ha partite aperte
+function checkOpenGameByPLayer(Player:any):any{
+    let open_game_player:any;
+    try{
+        open_game_player = Game.Games.findAll({
+            where: {
+                [Op.and]: [
+                    { game_open: 0 }, {
+                        [Op.or]:[
+                            {player_1: Player},
+                            {player_2: Player}
+                        ]}],
+                    }
+        });
+    }catch(error){
+        return 
     }
-    
-    
-   
+    return open_game_player;
 }
 
 // abbandona partita
 export function AbbandonedGame(req:any, res:any):void{
-    /**
-     * req.body.game
-     * req.body.opponent
-     */
-    if(Game.getOpenGame(req.body.game)){
-        if(Game.getGame(req.body.opponent)){
-            Game.setAbandonedGame(req.body.game);
-            Game.setWinner(req.body.game,req.body.opponent);
-        }else{
-            // errore avversario non associato a partita
-        }
-    }else{
-        // errore partita non aperta 
-    }
+    
+   /**
+    * verifica se la partita è aperta per entrami i giocatori
+    */
+if((checkOpenGameByPLayer(req.body.player).game_id == req.body.game) && 
+(checkOpenGameByPLayer(req.body.opponent).game_id == req.body.game)) 
+{
+    // imposta come abbandonata 
+    Game.setAbbandonedGame(req.body.game);
+    // imposta come vincitore l'avversario
+    Game.getWinner(req.body.opponent);
+}
+  
 }
 
 // mostra informazioni sulla partita 
-export async function ShowInfoGame(req:any, res:any){}
+export function ShowInfoGame(req:any, res:any){}
 
 // decurta token 
 function decreaseToken(email_user:string, token:number):void {
