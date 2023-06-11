@@ -1,7 +1,6 @@
-// middleware per validare jwt
-const dotenv = require('dotenv');
+require('dotenv').config();
 const jwt = require('jsonwebtoken');
-const message = require('src/factory/message');
+import { MessagesEnum } from "../factory/message";
 
 /**
  * [] checkHeader
@@ -17,40 +16,43 @@ export const checkHeader = (req: any, res: any, next: any) => {
             next();
         }
     }catch(error){
-        next(message.NoHeader);
+        next(MessagesEnum.checkHeaderError);
     }
 };
 
 export const checkToken = (req: any, res: any, next: any) => {
     try{
         const bearerHeader = req.headers.authorization;
-        if(typeof bearerHeader!=='undefined'){
+        if(typeof bearerHeader!== 'undefined'){
             const bearerToken = bearerHeader.split(' ')[1];
-            req.token=bearerToken;
+            req.token = bearerToken;
             next();
         }
-    }catch(error){
-        next(message.checkToken);
+        }catch(error){
+        next(MessagesEnum.checkTokenError);
     }
 };
 
 export const verifyAndAuthenticate = (req: any, res: any, next: any) => {
     try{
-        let decode = jwt.verify(req.token, process.env.SECRET_KEY)
-        if(decode !== null)
-        req.user = decode;
-        next();
+        let decoded = jwt.verify(req.token, process.env.SECRET_KEY!);
+        console.log(decoded)
+        if(decoded !== null){
+            req.user = decoded;
+            next();
+        }
     }catch(error){
-        next(message.verifyAndAuthenticateError);
+        next(MessagesEnum.verifyAndAuthenticateError);
     }
 };
 
 export const checkJwtPayload = (req: any, res: any, next: any) => {
-    try{
-        if(req.user.role  && req.user.email){
-            next();
-        }
-    }catch(error){
-        next(message.checkJwtPayloadError)
+    console.log(req.user);
+    if(req.user.role === 'admin' || req.user.role === 'user') {
+        next();
+    }else{
+        next(MessagesEnum.checkJwtPayloadError)
     }
 };
+
+
