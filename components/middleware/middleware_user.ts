@@ -6,14 +6,19 @@ import { Op } from "sequelize";
 
 
 // verifica se utente che fa richiesta è admin
-export function checkAdmin(req:any,res:any,next:any):void{
-    try{
-        const decoded:any = <string>jwt.decode(req.token)
-        next();
+export async function checkAdmin(req:any,res:any,next:any){
 
-    }catch(error){
-          next(MessagesEnum.checkAdminUser)
+    const decoded:any = <string>jwt.decode(req.token)
+    await Users.findByPk(decoded.email).then((user:any) => {
+        if(user.email === decoded.email){
+            console.log("utente admin");
+            next();
+        }else{
+            const msg = getErrorMessage(MessagesEnum.checkAdminUser).getMessage();
+            console.log(msg.code + ' : ' + msg.message);
+            res.status(msg.code).json(msg.message);
         }
+    })
     }
 
 // verifica se avversario esite
@@ -41,7 +46,7 @@ export async function checkOpenGame(req:any,res:any,next:any){
     
     await Games.findOne({
         where:{
-            [Op.and]: [{game_open: 1},
+            [Op.and]: [{game_open: 0},
                 {
             [Op.or]:[{player_1:req.user},{player_2:req.user}]
                 }]
@@ -64,7 +69,7 @@ export async function checkOpenGameOpponent(req:any,res:any,next:any){
     
     await Games.findOne({
         where:{
-            [Op.and]: [{game_open: 1},
+            [Op.and]: [{game_open: 0},
                 {
             [Op.or]:[{player_1:req.body.opponent},{player_2:req.body.opponent}]
                 }]
@@ -76,6 +81,29 @@ export async function checkOpenGameOpponent(req:any,res:any,next:any){
             const msg = getErrorMessage(MessagesEnum.checkOpenGameOpponentError).getMessage();
             console.log(msg.code + ' : ' + msg.message);
             res.status(msg.code).json(msg.message);
+        }
+    })
+}
+
+// verifica se giocatore ha partite aperte (uso in /abbandonapartita) 
+export async function checkWithOpenGame(req:any,res:any,next:any){
+    
+    await Games.findOne({
+        where:{
+            [Op.and]: [{game_open: 0},
+                {
+            [Op.or]:[{player_1:req.user},{player_2:req.user}]
+                }]
+        }
+    }).then((item:any) => {
+        if(item == null){
+
+            const msg = getErrorMessage(MessagesEnum.checkWithOpenGameErr).getMessage();
+            console.log(msg.code + ' : ' + msg.message);
+            res.status(msg.code).json(msg.message);
+        }else{
+            console.log("player with open game");
+            next();
         }
     })
 }
