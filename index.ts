@@ -1,7 +1,7 @@
 const express = require('express');
 import * as Middleware_jwt from './components/middleware/middleware_jwt';
 import * as Middleware_user from './components/middleware/middleware_user';
-import * as Middleware_handler from './components/middleware/middlewar_handler';
+// import * as Middleware_handler from './components/middleware/middlewar_handler';
 import * as Controller_game from './components/controller/controller_game';
 import * as Controller_user from './components/controller/controller_user';
 import * as Controller_move from './components/controller/controller_move';
@@ -18,21 +18,19 @@ app.use([
     Middleware_jwt.checkHeader,
     Middleware_jwt.checkToken,
     Middleware_jwt.verifyAndAuthenticate,
-    Middleware_handler.errorHandler
+//    Middleware_handler.errorHandler
 ]);
-
-// validazione payload token
-app.use(Middleware_jwt.checkJwtPayload)
 
 // rotta per creare una nuova partita
 app.post('/creapartita', [
-    Middleware_user.checkEmailPlayer,
     Middleware_user.checkEmailOpponent,
     Middleware_user.checkOpenGame,
     Middleware_user.checkOpenGameOpponent,
-    Middleware_handler.errorHandler],(req:any, res:any) => {
-    Controller_game.CreateNewGame(req, res)
-});
+    Middleware_user.checkTokenPlayer,
+    Middleware_user.checkTokenOpponent],
+    (req:any, res:any) => { 
+        Controller_game.CreateNewGame(req, res)
+    });
 
 // rotta per creare una uova mossa
 app.post('/creanuovamossa', (req:any, res:any) => {
