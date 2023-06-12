@@ -37,8 +37,8 @@ class verifyAndAuthenticateError implements msg{
 class checkJwtPayloadError implements msg{
     getMessage(): { code: number; message: string; } {
         return {
-            code:400,
-            message:"Error Token: token payload error"
+            code: 400,
+            message: "Error Token: token payload error"
         }
     }
 }
@@ -70,7 +70,7 @@ class checkEmailPlayer2Error implements msg{
 }
 
 class newGameCreate implements msg{
-    getMessage(data?: any): { code: number; message: string; } {
+    getMessage(): { code: number; message: string; } {
         return{
             code: 200,
             message:"Success: Game Create" 
@@ -129,12 +129,39 @@ class checkTokenOpponentErr implements msg{
     }
 } 
 
+class checkWithOpenGameErr implements msg{
+    getMessage(): { code: number; message: string; } {
+        return {
+            code: 403,
+            message: "Error Open Game: player not has open game, forbidden abbandoned game"
+        }
+    }
+}
+
+class AbbandonedGameErr implements msg{
+    getMessage(): { code: number; message: string; } {
+        return {
+            code: 403,
+            message: "Error Abbandoned: forbidden abbandoned game"
+        }
+    }
+} 
+
 // successi
 class gameCreateSuccess implements msg{
     getMessage(): { code: number; message: string; } {
         return {
             code: 200,
             message: "Game create"
+        }
+    }
+}
+
+class abbandonedGameSuccess implements msg{
+    getMessage(): { code: number; message: string; } {
+        return {
+            code: 200,
+            message: "Game abbandoned"
         }
     }
 }
@@ -154,7 +181,10 @@ export enum MessagesEnum {
     checkEmailOpponentError,
     checkTokenPlayerErr,
     checkTokenOpponentErr,
-    gameCreateSuccess
+    checkWithOpenGameErr,
+    AbbandonedGameErr,
+    gameCreateSuccess,
+    abbandonedGameSuccess
 }
 
 export function getErrorMessage (type: MessagesEnum):msg {
@@ -202,8 +232,17 @@ export function getErrorMessage (type: MessagesEnum):msg {
         case MessagesEnum.checkTokenOpponentErr:
             val = new checkTokenOpponentErr();
             break;
+        case MessagesEnum.checkWithOpenGameErr:
+            val = new checkWithOpenGameErr();
+            break;
+        case MessagesEnum.AbbandonedGameErr:
+            val = new AbbandonedGameErr();
+            break;
         case MessagesEnum.gameCreateSuccess:
             val = new gameCreateSuccess();
+            break;
+        case MessagesEnum.abbandonedGameSuccess:
+            val = new abbandonedGameSuccess();
             break;
     }
     return val;
