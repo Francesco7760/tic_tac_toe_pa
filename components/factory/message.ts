@@ -7,6 +7,15 @@ export interface msg {
 }
 
 // errori
+class genericError implements msg{
+    getMessage(): { code: number; message: string; } {
+        return {
+            code: 400,
+            message: "Bad Request"
+        }
+    }
+}
+
 class checkHeaderError implements msg{
     getMessage(): { code: number; message: string; } {
         return {
@@ -115,7 +124,16 @@ class checkTokenPlayerErr implements msg{
     getMessage(): { code: number; message: string; } {
         return {
             code: 401,
-            message: "Error Token: player have not enough token "
+            message: "Error Token: not enough token to create game "
+        }
+    }
+} 
+
+class checkTokenMoveErr implements msg{
+    getMessage(): { code: number; message: string; } {
+        return {
+            code: 401,
+            message: "Error Token: not enough token to move "
         }
     }
 } 
@@ -124,7 +142,7 @@ class checkTokenOpponentErr implements msg{
     getMessage(): { code: number; message: string; } {
         return {
             code: 401,
-            message: "Error Token: opponent have not enough token "
+            message: "Error Token: opponent have not enough token to create game"
         }
     }
 } 
@@ -146,8 +164,42 @@ class AbbandonedGameErr implements msg{
         }
     }
 } 
+class checkYourTurnErr implements msg{
+    getMessage(): { code: number; message: string; } {
+        return {
+            code: 403,
+            message: "Error Turn: forbidden move, not your turn"
+        }
+    }
+}
+
+class checkGameExistsErr implements msg{
+    getMessage(): { code: number; message: string; } {
+        return {
+            code: 400,
+            message: "Error Game: game not exits"
+        }
+    }
+}
+
+class CreateMoveErr implements msg{
+    getMessage(): { code: number; message: string; } {
+        return {
+            code: 403,
+            message: "Error Move: move not allowed"
+        }
+    }
+}
 
 // successi
+class genericSuccess implements msg{
+    getMessage(): { code: number; message: string; } {
+        return {
+            code: 200,
+            message: "Ok"
+        }
+    }
+}
 class gameCreateSuccess implements msg{
     getMessage(): { code: number; message: string; } {
         return {
@@ -157,6 +209,14 @@ class gameCreateSuccess implements msg{
     }
 }
 
+class CreateMoveSuccess implements msg{
+    getMessage(): { code: number; message: string; } {
+        return {
+            code: 200,
+            message: "Move create"
+        }
+    }
+}
 class abbandonedGameSuccess implements msg{
     getMessage(): { code: number; message: string; } {
         return {
@@ -166,7 +226,17 @@ class abbandonedGameSuccess implements msg{
     }
 }
 
+class winGameSuccess implements msg{
+    getMessage(): { code: number; message: string; } {
+        return {
+            code: 200,
+            message: "Game win"
+        }
+    }
+}
+
 export enum MessagesEnum {
+    genericError,
     checkHeaderError,
     checkTokenError,
     verifyAndAuthenticateError,
@@ -183,13 +253,22 @@ export enum MessagesEnum {
     checkTokenOpponentErr,
     checkWithOpenGameErr,
     AbbandonedGameErr,
+    checkYourTurnErr,
+    checkGameExistsErr,
+    CreateMoveErr,
+    genericSuccess,
     gameCreateSuccess,
-    abbandonedGameSuccess
+    abbandonedGameSuccess,
+    CreateMoveSuccess,
+    winGameSuccess
 }
 
 export function getErrorMessage (type: MessagesEnum):msg {
     let val: msg;
     switch (type){
+        case MessagesEnum.genericError:
+            val = new genericError();
+            break;
         case MessagesEnum.checkHeaderError:
             val = new checkHeaderError();
             break;
@@ -238,11 +317,29 @@ export function getErrorMessage (type: MessagesEnum):msg {
         case MessagesEnum.AbbandonedGameErr:
             val = new AbbandonedGameErr();
             break;
+        case MessagesEnum.checkYourTurnErr:
+            val = new checkYourTurnErr();
+            break;
+        case MessagesEnum.checkGameExistsErr:
+            val = new checkGameExistsErr();
+            break;
+        case MessagesEnum.CreateMoveErr:
+            val = new CreateMoveErr();
+            break;
+        case MessagesEnum.genericSuccess:
+            val = new genericSuccess();
+            break;
         case MessagesEnum.gameCreateSuccess:
             val = new gameCreateSuccess();
             break;
         case MessagesEnum.abbandonedGameSuccess:
             val = new abbandonedGameSuccess();
+            break;
+        case MessagesEnum.CreateMoveSuccess:
+            val = new CreateMoveSuccess();
+            break;
+        case MessagesEnum.winGameSuccess:
+            val = new winGameSuccess();
             break;
     }
     return val;
