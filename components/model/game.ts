@@ -29,11 +29,11 @@ export const Games = sequelize.define('games',{
         },
     game_open:{
         type: DataTypes.BOOLEAN,
-        defaultValue: false
+        defaultValue: 1
     },
     game_abandoned:{
         type: DataTypes.BOOLEAN,
-        defaultValue: false
+        defaultValue: 0
     },
     winner:{
         type: DataTypes.STRING,
@@ -42,161 +42,73 @@ export const Games = sequelize.define('games',{
             key:'email'
         }
      },
-    turn:{
-        type: DataTypes.INTEGER,
-        defaultValue:0}
+    turn_player:{
+        type: DataTypes.STRING,
+        references:{
+            model:Users,
+            key:'email'
+        }},
+    x_player:{       
+        type: DataTypes.STRING,
+        references:{
+            model:Users,
+            key:'email'
+        }},
+    game_state_last:{
+        type: DataTypes.ARRAY(DataTypes.TEXT),
+        defaultValue:['', '', '', '', '', '', '', '', '']} 
 },{
     modelName:'games',
     timestamps: false
 });
 
 // set game
-export async function newGame(Player1:string,Player2:string):Promise<void>{
-        await Games.create({
-            player_1: Player1,
-            player_2: Player2,
-            game_open: 0,
-            turn: 0
-        }); 
+export async function newGame(Player_1:string, Player_2:string, Turn_player:string, X_player:string){
+    await Games.create(
+        {player_1:Player_1,
+        player_2:Player_2,
+        turn_player:Turn_player,
+        game_open:true,
+        game_abandoned:false,
+        x_player:X_player}
+    );
 }
 
-// get game by player
-export function getGame(Player:string):any{
-    let game:any
-    try{
-        game ==  Games.findAll({
-            raw:true,
-            where:{
-                [Op.or]:[
-                    {player_1: Player},
-                    {player_2: Player}
-                ]
-
+// set winner e patita terminata (non open e non abbandonata)
+export async function setWinner(Game_id:number, User_email:string){
+    
+    await  Games.findByPk(Game_id)
+        .then((game:any) => {
+            if(game != null){
+                Games.update({[Op.and]:
+                                [{game_abandoned: 1},{game_open:1},{winner:User_email}]},
+                                    {where: {game_id:Game_id}})
             }
-        })
-    }catch(err){
-        console.log(err);
-    }
-    if(!Player) return false;
-    if(game === true) return game;
-    else return false;
-}
-
-// set winner
-export async function setWinner(game:number, user_email:string):Promise<void>{
-    await Games.update(
-        {winner: user_email},{
-        where:{
-            game_id: game
-        }
-    });
-}
-
-// get winner
-export async function getWinner(game:number):Promise<any>{
-    let winner_game:any
-    try{
-        winner_game == await Games.findOne({
-            raw:true,
-            attributes: ['winner'],
-            where: {
-                game_id:game
-            }
-        })
-    }catch(err){
-        console.log(err);
-    }
-    if(!game) return null;
-    if(winner_game !==  null) return winner_game;
-    else return null;
-}
-
-// set open_game
-export async function setOpenGame(game:number):Promise<void>{
-    await Games.update(
-        {game_id: game},{
-        where:{
-            game_open: 0
-        }
-    });
-}
-
-// get open_game
-export  function getOpenGame(email:string):any{
-    let gameopen:any
-    try{
-        gameopen ==  Games.findAll({
-            raw:true,
-            attributes: ['game_open'],
-            where:{
-                [Op.or]:[
-                    {player_1: email},
-                    {player_2: email}
-                ]
-
-            }
-        })
-    }catch(err){
-        console.log(err);
-    }
-    if(!email) return false;
-    if(gameopen === true) return true;
-    else return false;
-}
-// get turn
-export async function getTurn(game:number):Promise<any>{
-    let turn_game:any
-    try{
-        turn_game == await Games.findOne({
-            raw:true,
-            attributes: ['turn'],
-            where: {
-                game_id:game
-            }
-        })
-    }catch(err){
-        console.log(err);
-    }
-    if(!game) return null;
-    if(turn_game !==  null) return turn_game;
+    })
 }
 
 // set turn
-export async function setTurn(game:number, turn_game :number):Promise<void>{
-    await Games.update(
-        {game_id: game},{
-        where:{
-            turn: turn_game
+export async function setTurnNextPLayer(Game_id:number, User_email:string){
+    
+    await  Games.findByPk(Game_id)
+        .then((game:any) => {
+            if(game !== null){
+                if(game.player_1 === User_email){
+                Games.update({turn_player:game.player_2},{where: {game_id:Game_id}})
+            }else{
+                Games.update({turn_player:game.Player_1},{where: {game_id:Game_id}})
+            }
+
         }
-    });
+    })
 }
 
-// controlla se un giocatore ha partite aperte
-export  function getOpenGameByPLayer(Player:any):any{
-    let open_game_player:any;
-    if(Player != null){
-        open_game_player = Games.findAll({
-            where: {
-                [Op.and]: [
-                    { game_open: 0 }, {
-                        [Op.or]:[
-                            {player_1: Player},
-                            {player_2: Player}
-                        ]}],
-                    }
+// set abbandoned
+export function setAbbandonedGame(game:number){
+    Games.update(
+        {game_abandoned: 1}, {
+            where:{
+                game_id: game
+            }
         });
-    }else{
-        console.log("errore");
-    }
-    return open_game_player;
-}
-
-// set game_abandoned game 
-export function setAbandonedGame(Game:string):void{
-     Games.update(
-        {game_id: Game},{
-        where:{
-            game_abandoned: 1
-        }
-    });
 }
