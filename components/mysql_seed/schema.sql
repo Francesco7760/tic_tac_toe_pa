@@ -8,8 +8,14 @@ DROP TABLE IF EXISTS moves;
 
 CREATE TABLE users(
     email varchar(100) NOT NULL,
-    admin_role BOOLEAN DEFAULT false,
-    token INT DEFAULT 0,
+    role varchar(25) NOT NULL,
+    token REAL DEFAULT 0,
+    num_win INT DEFAULT 0,
+    num_win_ab INT DEFAULT 0,
+    num_win_vs_ia INT DEFAULT 0,
+    num_lose INT DEFAULT 0,
+    num_lose_ab INT DEFAULT 0,
+    num_lose_vs_ia INT DEFAULT 0,
     PRIMARY KEY (email)
 );
 
@@ -17,32 +23,62 @@ CREATE TABLE games(
     game_id INT AUTO_INCREMENT NOT NULL,
     player_1 varchar(100) NOT NULL,
     player_2 varchar(100) NOT NULL,
-    game_open BOOLEAN DEFAULT false,
+    game_open BOOLEAN DEFAULT true,
     game_abandoned BOOLEAN DEFAULT false,
     winner varchar(100), 
-    turn INT DEFAULT 0,
-    PRIMARY KEY (game_id),
-    FOREIGN KEY (player_1) REFERENCES users(email),
-    FOREIGN KEY (player_2) REFERENCES users(email),
-    FOREIGN KEY (winner) REFERENCES users(email)
+    loser varchar(100),
+    turn_player varchar(100) NOT NULL,
+    x_player varchar(100) NOT NULL,
+    game_state_last varchar(100) NOT NULL,
+    PRIMARY KEY (game_id)
+    -- FOREIGN KEY (player_1) REFERENCES users(email),
+    -- FOREIGN KEY (player_2) REFERENCES users(email)
 );
 
 CREATE TABLE moves(
     move_id INT AUTO_INCREMENT NOT NULL,
     player varchar(100) NOT NULL,
     game INT NOT NULL,
-    game_state JSON NOT NULL,
+    game_state varchar(100) NOT NULL,
     start DATE NOT NULL,
-    PRIMARY KEY (move_id),
-    FOREIGN KEY (game) REFERENCES games(game_id),
-    FOREIGN KEY (player) REFERENCES users(email)
+    PRIMARY KEY (move_id)
+    -- FOREIGN KEY (player) REFERENCES users(email)
 );
 
-INSERT INTO users (email, admin_role, token)
+INSERT INTO users (
+    email, 
+    role, 
+    token,
+    num_win,
+    num_win_ab,
+    num_lose,
+    num_lose_ab)
 VALUES 
-('admin@email.com',0, 20),
-('user_1@email.com',1, 20),
-('user_2@email.com',1, 20),
-('user_3@email.com',1,20),
-('annachiara@mail.com', 1, 999),
-('IA',1,99999)
+('admin@email.com','admin', 20,3,0,1,0),
+('user_1@email.com','user', 20,2,1,1,1),
+('user_2@email.com','user', 20,7,1,0,0),
+('user_3@email.com','user',0,7,0,4,2),
+('user_4@email.com','user', 0,2,2,2,2),
+('user_5@email.com','user', 0,1,1,1,1),
+('IA','admin',0,5,2,4,0);
+
+INSERT INTO games (
+    game_id, 
+    player_1, 
+    player_2, 
+    game_open, 
+    game_abandoned, 
+    winner, 
+    loser, 
+    turn_player, 
+    x_player, 
+    game_state_last)
+VALUES 
+('1','user_1@email.com','user_4@email.com',0,1,'user_1@email.com', 'user_4@email.com','user_4@email.com','user_4@email.com','["", "", "", "", "", "", "", "", ""]'),
+('2','user_5@email.com','user_3@email.com',0,1,'user_3@email.com', 'user_5@email.com','user_5@email.com','user_5@mail.com','["", "", "", "", "", "", "", "", ""]'),
+('3','user_2@email.com','user_4@email.com',0,1,'user_2@email.com', 'user_4@email.com','user_3@email.com','user_4@mail.com','["", "", "", "", "", "", "", "", ""]'),
+('4','user_5@email.com','user_2@email.com',1,0,'', '','user_2@email.com','user_5@mail.com','["", "", "", "", "", "", "", "", ""]'),
+('5','user_1@email.com','user_3@email.com',1,0,'', '','user_3@email.com','user_1@mail.com','["", "", "", "", "", "", "", "", ""]'),
+('6','user_3@email.com','user_1@email.com',0,1,'user_3@email.com', 'user_1@email.com','user_3@email.com','user_43@mail.com','["", "", "", "", "", "", "", "", ""]'),
+('7','user_3@email.com','user_1@email.com',0,1,'user_3@email.com', 'user_1@email.com','user_3@email.com','user_43@mail.com','["", "", "", "", "", "", "", "", ""]'),
+('8','user_3@email.com','user_1@email.com',0,1,'user_3@email.com', 'user_1@email.com','user_3@email.com','user_43@mail.com','["", "", "", "", "", "", "", "", ""]');
