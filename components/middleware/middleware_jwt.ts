@@ -1,24 +1,30 @@
 require('dotenv').config();
 const jwt = require('jsonwebtoken');
-import { MessagesEnum } from "../factory/message";
+import { MessagesEnum ,getErrorMessage} from "../factory/message";
 
 /**
  * [] checkHeader
  * [] checkToken
  * [] verifyAndAuthenticate
- * [] checkJwtPayload
  */
 
 export const checkHeader = (req: any, res: any, next: any) => {
     try{
         const authHeader = req.headers.authorization;
         if(authHeader){
+
+            // messaggio di successo
+            const msg = getErrorMessage(MessagesEnum.checkGameExistsErr).getMessage();
+            console.log(msg.code + "success headers");
+            res.status(msg.code).json(msg.message);
+
             next();
         }
     }catch(error){
+        console.log("error headers");
         next(MessagesEnum.checkHeaderError);
     }
-};
+}
 
 export const checkToken = (req: any, res: any, next: any) => {
     try{
@@ -26,33 +32,42 @@ export const checkToken = (req: any, res: any, next: any) => {
         if(typeof bearerHeader!== 'undefined'){
             const bearerToken = bearerHeader.split(' ')[1];
             req.token = bearerToken;
+
+            // messaggio di successo
+            const msg = getErrorMessage(MessagesEnum.checkGameExistsErr).getMessage();
+            console.log(msg.code + "success token");
+            res.status(msg.code).json(msg.message);
+
             next();
         }
         }catch(error){
+            console.log("errore token");
         next(MessagesEnum.checkTokenError);
     }
-};
+}
 
 export const verifyAndAuthenticate = (req: any, res: any, next: any) => {
     try{
-        let decoded = jwt.verify(req.token, process.env.SECRET_KEY!);
-        console.log(decoded)
+        const decoded = <string>jwt.verify(req.token, process.env.SECRET_KEY!);
+        const player:any = <string>jwt.decode(req.token)
+
+        // messaggio di successo
+        const msg = getErrorMessage(MessagesEnum.checkGameExistsErr).getMessage();
+        console.log(msg.code + "success auth");
+        res.status(msg.code).json(msg.message);
+;
         if(decoded !== null){
-            req.user = decoded;
+            req.user = player.email;
             next();
         }
     }catch(error){
+        console.log("error auth");
         next(MessagesEnum.verifyAndAuthenticateError);
     }
-};
+}
 
-export const checkJwtPayload = (req: any, res: any, next: any) => {
-    console.log(req.user);
-    if(req.user.role === 'admin' || req.user.role === 'user') {
-        next();
-    }else{
-        next(MessagesEnum.checkJwtPayloadError)
-    }
-};
-
-
+export const check_jwt = [
+    checkHeader,
+    checkToken,
+    verifyAndAuthenticate
+]
