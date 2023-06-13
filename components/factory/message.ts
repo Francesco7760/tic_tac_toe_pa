@@ -60,24 +60,6 @@ class checkAdminUser implements msg{
         }
     }
 }
-class checkEmailPlayer1Error implements msg{
-    getMessage(): { code: number; message: string; } {
-        return {
-            code:400,
-            message:"Error Email Player: insert email"
-        }
-    }
-}
-
-class checkEmailPlayer2Error implements msg{
-    getMessage(): { code: number; message: string; } {
-        return {
-            code:400,
-            message:"Error Email Opponent: insert email"
-        }
-    }
-}
-
 class newGameCreate implements msg{
     getMessage(): { code: number; message: string; } {
         return{
@@ -129,14 +111,14 @@ class checkTokenPlayerErr implements msg{
     }
 } 
 
-class checkTokenMoveErr implements msg{
-    getMessage(): { code: number; message: string; } {
-        return {
-            code: 401,
-            message: "Error Token: not enough token to move "
-        }
-    }
-} 
+//class checkTokenMoveErr implements msg{
+//    getMessage(): { code: number; message: string; } {
+//        return {
+//            code: 401,
+//            message: "Error Token: not enough token to move "
+//        }
+//    }
+//} 
 
 class checkTokenOpponentErr implements msg{
     getMessage(): { code: number; message: string; } {
@@ -191,6 +173,33 @@ class CreateMoveErr implements msg{
     }
 }
 
+class ShowMovesGameErr implements msg{
+    getMessage(): { code: number; message: string; } {
+        return {
+            code: 404,
+            message: "Error Moves: moves not found"
+        }
+    }
+}
+
+class ShowMovesGameFormatErr implements msg{
+    getMessage(): { code: number; message: string; } {
+        return {
+            code: 404,
+            message: "Error Format Result: choose between csv and json"
+        }
+    }
+}
+
+class AddTokenErr implements msg{
+    getMessage(): { code: number; message: string; } {
+        return {
+            code: 4000,
+            message: "Error Add Token: token not add"
+        }
+    }
+}
+
 // successi
 class genericSuccess implements msg{
     getMessage(): { code: number; message: string; } {
@@ -226,6 +235,14 @@ class abbandonedGameSuccess implements msg{
     }
 }
 
+class AddTokenSuccess implements msg{
+    getMessage(): { code: number; message: string; } {
+        return {
+            code: 200,
+            message: "Token add"
+        }
+    }
+}
 class winGameSuccess implements msg{
     getMessage(): { code: number; message: string; } {
         return {
@@ -242,8 +259,6 @@ export enum MessagesEnum {
     verifyAndAuthenticateError,
     checkJwtPayloadError,
     checkAdminUser,
-    checkEmailPlayer1Error,
-    checkEmailPlayer2Error,
     newGameCreate,
     checkOpenGameError,
     checkOpenGameOpponentError,
@@ -256,11 +271,15 @@ export enum MessagesEnum {
     checkYourTurnErr,
     checkGameExistsErr,
     CreateMoveErr,
+    ShowMovesGameErr,
+    ShowMovesGameFormatErr,
+    AddTokenErr,
     genericSuccess,
     gameCreateSuccess,
     abbandonedGameSuccess,
     CreateMoveSuccess,
-    winGameSuccess
+    winGameSuccess,
+    AddTokenSuccess
 }
 
 export function getErrorMessage (type: MessagesEnum):msg {
@@ -283,12 +302,6 @@ export function getErrorMessage (type: MessagesEnum):msg {
             break;
         case MessagesEnum.checkAdminUser:
             val = new checkAdminUser();
-            break;
-        case MessagesEnum.checkEmailPlayer1Error:
-            val = new checkEmailPlayer1Error();
-            break;
-        case MessagesEnum.checkEmailPlayer2Error:
-            val = new checkEmailPlayer2Error();
             break;
         case MessagesEnum.newGameCreate:
             val = new newGameCreate();
@@ -326,8 +339,17 @@ export function getErrorMessage (type: MessagesEnum):msg {
         case MessagesEnum.CreateMoveErr:
             val = new CreateMoveErr();
             break;
+        case MessagesEnum.AddTokenErr:
+            val = new AddTokenErr();
+            break;
         case MessagesEnum.genericSuccess:
             val = new genericSuccess();
+            break;
+        case MessagesEnum.ShowMovesGameErr:
+            val = new ShowMovesGameErr;
+            break;
+        case MessagesEnum.ShowMovesGameFormatErr:
+            val = new ShowMovesGameFormatErr();
             break;
         case MessagesEnum.gameCreateSuccess:
             val = new gameCreateSuccess();
@@ -340,6 +362,9 @@ export function getErrorMessage (type: MessagesEnum):msg {
             break;
         case MessagesEnum.winGameSuccess:
             val = new winGameSuccess();
+            break;
+        case MessagesEnum.AddTokenSuccess:
+            val = new AddTokenSuccess();
             break;
     }
     return val;
