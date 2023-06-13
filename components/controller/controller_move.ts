@@ -1,18 +1,17 @@
-import * as Connection from '../singleton/db_connection';
-import{Games, setWinner, setTurnNextPLayer} from '../model/game';
-import {newMove } from '../model/move';
-import { Sequelize, Op } from "sequelize";
+import{Games, setTurnNextPLayer} from '../model/game';
+import {Moves, newMove } from '../model/move';
+import { Op } from "sequelize";
 import { MessagesEnum, getErrorMessage} from '../factory/message';
+import { Users } from '../model/user';
+const parse_csv = require('json2csv');
 const ttt_engine = require("tic-tac-toe-ai-engine");
 
-const sequelize: Sequelize = Connection.db_connection.getConnection();
-
-// crea una nuova mossa
+// [] crea una nuova mossa
 export  async function CreateMove(req:any, res:any){
 
   await Games.findOne({        
         where:{
-        [Op.and]: [{game_open: 0},
+        [Op.and]: [{game_open: 1},
             {
         [Op.or]:[{player_1:req.user},{player_2:req.user}]
             }]
@@ -48,13 +47,13 @@ export  async function CreateMove(req:any, res:any){
                 if(ttt_engine.determineWinner(game_state_last_array) == req.user){
                     // imposta vincitore
                     Games.update({winner:req.user},{where:{game_id:game.game_id}});
+                    // imposta numero partite vinte
+                    Users.increment(['num_win'], {by:1, where:{email:req.user}})
                     // imposta partita chiusa
-                    Games.update({game_open:false},{where:{game_id:game.game_id}});
+                    Games.update({game_open:1},{where:{game_id:game.game_id}});
                     // imposta partita non abbandonata
-                    Games.update({game_abandoned:false},{where:{game_id:game.game_id}});
-                    // imposta partita terminata
-                    Games.update({game_terminated:true},{where:{game_id:game.game_id}});
-
+                    Games.update({game_abandoned:1},{where:{game_id:game.game_id}});
+                    
                     // messaggio vincita
                     const msg = getErrorMessage(MessagesEnum.winGameSuccess).getMessage();
                     console.log(msg.code + ' : ' + msg.message);
@@ -78,14 +77,41 @@ export  async function CreateMove(req:any, res:any){
 
 // mostra storico mosse di una data partita 
 export async function ShowMovesGame(req:any, res:any){
-    await Games.findAll({
-        attributes : ['game_state'],
-        where: {game_id: req.body.game_id}
-    }).then((game)=>{
+    await Moves.findAll({
+        attributes : ['player','game','game_state','start'],
+        where: {
+            [Op.and]:[{game: req.body.game_id},
+                {start:{
+                    [Op.between]:[req.body.start_date,req.body.finish_date]
+                }}
+            ]}
+    }).then((moves:any)=>{
+        if(moves != null){
+            if(req.body.format == "text/json"){
 
             const msg = getErrorMessage(MessagesEnum.genericSuccess).getMessage();
             console.log(msg.code + ' : ' + msg.message);
-            res.status(msg.code).json({game});
+            res.status(msg.code).send({moves});
+
+            }else if(req.body.format == "text/csv"){
+
+                let csv_message = parse_csv.parse({moves});
+
+                const msg = getErrorMessage(MessagesEnum.genericSuccess).getMessage();
+                console.log(msg.code + ' : ' + msg.message);
+                res.status(msg.code).send(csv_message);
+            }else{
+
+                const msg = getErrorMessage(MessagesEnum.ShowMovesGameFormatErr).getMessage();
+                console.log(msg.code + ' : ' + msg.message);
+                res.status(msg.code).json(msg.message);
+            }
+        }else{
+
+            const msg = getErrorMessage(MessagesEnum.ShowMovesGameErr).getMessage();
+            console.log(msg.code + ' : ' + msg.message);
+            res.status(msg.code).json(msg.message);
+        }
     })
 }
 
