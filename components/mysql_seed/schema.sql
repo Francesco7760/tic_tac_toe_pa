@@ -31,8 +31,6 @@ CREATE TABLE games(
     x_player varchar(100) NOT NULL,
     game_state_last varchar(100) NOT NULL,
     PRIMARY KEY (game_id)
-    -- FOREIGN KEY (player_1) REFERENCES users(email),
-    -- FOREIGN KEY (player_2) REFERENCES users(email)
 );
 
 CREATE TABLE moves(
@@ -42,7 +40,6 @@ CREATE TABLE moves(
     game_state varchar(100) NOT NULL,
     start DATE NOT NULL,
     PRIMARY KEY (move_id)
-    -- FOREIGN KEY (player) REFERENCES users(email)
 );
 
 INSERT INTO users (
@@ -82,3 +79,17 @@ VALUES
 ('6','user_3@email.com','user_1@email.com',0,1,'user_3@email.com', 'user_1@email.com','user_3@email.com','user_43@mail.com','["", "", "", "", "", "", "", "", ""]'),
 ('7','user_3@email.com','user_1@email.com',0,1,'user_3@email.com', 'user_1@email.com','user_3@email.com','user_43@mail.com','["", "", "", "", "", "", "", "", ""]'),
 ('8','user_3@email.com','user_1@email.com',0,1,'user_3@email.com', 'user_1@email.com','user_3@email.com','user_43@mail.com','["", "", "", "", "", "", "", "", ""]');
+
+INSERT INTO moves (
+    move_id,
+    player,
+    game,
+    game_state,
+    start) 
+VALUES 
+('1','user_1@email.com','1','["X", "", "", "", "", "", "", "", ""]', CURDATE()),
+('2','user_4@email.com','1','["X", "O", "", "", "", "", "", "", ""]', CURDATE()),
+('3','user_1@email.com','1','["X", "O", "X", "", "", "", "", "", ""]', CURDATE()),
+('4','user_5@email.com','2','["", "", "X", "", "", "", "", "", ""]', CURDATE()),
+('5','user_3@email.com','2','["", "", "X", "", "O", "", "", "", ""]', CURDATE()),
+('6','user_5@email.com','2','["", "", "X", "", "", "", "", "X", ""]', CURDATE());

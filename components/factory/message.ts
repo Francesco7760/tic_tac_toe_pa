@@ -111,15 +111,6 @@ class checkTokenPlayerErr implements msg{
     }
 } 
 
-//class checkTokenMoveErr implements msg{
-//    getMessage(): { code: number; message: string; } {
-//        return {
-//            code: 401,
-//            message: "Error Token: not enough token to move "
-//        }
-//    }
-//} 
-
 class checkTokenOpponentErr implements msg{
     getMessage(): { code: number; message: string; } {
         return {
@@ -252,6 +243,15 @@ class winGameSuccess implements msg{
     }
 }
 
+class checkEmailOpponentSuccess implements msg{
+    getMessage(): { code: number; message: string; } {
+        return {
+            code: 200,
+            message: "email opponent right"
+        }
+    }
+}
+
 export enum MessagesEnum {
     genericError,
     checkHeaderError,
@@ -279,7 +279,8 @@ export enum MessagesEnum {
     abbandonedGameSuccess,
     CreateMoveSuccess,
     winGameSuccess,
-    AddTokenSuccess
+    AddTokenSuccess,
+    checkEmailOpponentSuccess
 }
 
 export function getErrorMessage (type: MessagesEnum):msg {
@@ -365,6 +366,9 @@ export function getErrorMessage (type: MessagesEnum):msg {
             break;
         case MessagesEnum.AddTokenSuccess:
             val = new AddTokenSuccess();
+            break;
+        case MessagesEnum.checkEmailOpponentSuccess:
+            val = new checkEmailOpponentSuccess();
             break;
     }
     return val;

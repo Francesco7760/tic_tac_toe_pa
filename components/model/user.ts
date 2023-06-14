@@ -5,8 +5,9 @@ import { db_connection } from '../singleton/db_connection';
 const sequelize: Sequelize = db_connection.getConnection();
 
 /**
- * definizione del model 'user'
+ * [] Users -> model 'user'
  */
+
 export const Users = sequelize.define('users',{
     email:{
         type:DataTypes.STRING,

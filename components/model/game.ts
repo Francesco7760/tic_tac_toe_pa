@@ -6,8 +6,17 @@ import { Users } from "./user";
 const sequelize: Sequelize = db_connection.getConnection();
 
 /**
- * definizione model 'game'
+ * [] Games -> model 'game'
+ * 
+ * [] newGame ->  crea una nuova partita specificando:
+ *                  - giocatore
+ *                  - avversario
+ *                  - chi fa la prima mossa
+ *                  - che ha scelto di giocare 'X'
+ * 
+ * [] setTurnNextPLayer -> imposta una partita come abbandonata
  */
+
 export const Games = sequelize.define('games',{
     game_id: {
         type: DataTypes.INTEGER, 
@@ -75,17 +84,17 @@ export async function newGame(Player_1:string, Player_2:string, Turn_player:stri
 }
 
 // set winner e patita terminata (non open e non abbandonata)
-export async function setWinner(Game_id:number, User_email:string){
+//export async function setWinner(Game_id:number, User_email:string){
     
-    await  Games.findByPk(Game_id)
-        .then((game:any) => {
-            if(game != null){
-                Games.update({[Op.and]:
-                                [{game_abandoned: 1},{game_open:1},{winner:User_email}]},
-                                    {where: {game_id:Game_id}})
-            }
-    })
-}
+//    await  Games.findByPk(Game_id)
+//        .then((game:any) => {
+//            if(game != null){
+//                Games.update({[Op.and]:
+//                                [{game_abandoned: 1},{game_open:1},{winner:User_email}]},
+//                                    {where: {game_id:Game_id}})
+//            }
+//    })
+//}
 
 // set turn
 export async function setTurnNextPLayer(Game_id:number, User_email:string){

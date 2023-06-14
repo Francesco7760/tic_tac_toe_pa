@@ -6,8 +6,14 @@ import {DataTypes, Sequelize} from "sequelize";
 const sequelize: Sequelize = db_connection.getConnection();
 
 /**
- * definizione del model 'move'
+ * [] Moves -> model 'move'
+ * 
+ * [] newMove -> crea una nuova possa specificando:
+ *                  - giocatore che compie la mossa
+ *                  - partita dove registrare la mossa
+ *                  - il vettore associato alla mossa del giocatore
  */
+
 export const Moves = sequelize.define('moves', {
     move_id:{
         type: DataTypes.INTEGER, 
