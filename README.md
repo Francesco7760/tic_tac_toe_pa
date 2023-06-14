@@ -62,17 +62,17 @@ riassunto funzionalità
 ![diagrammi casi d'uso](immagini/casi_usi.png)
 ### Diagrammi delle seguenze
 #### crea nuova partita
-![nuova partita](immagini/casi_usi.png)
+![nuova partita](immagini/creanuovapartita.pngg)
 #### effettuare una nuova mossa
-![nuova mossa](immagini/casi_usi.png)
+![nuova mossa](immagini/nuovamossa.png)
 #### controllare stato partita
-![stato partita](immagini/casi_usi.png)
+![stato partita](immagini/statopartita.png)
 #### storico mosse in un partita
-![storico mosse](immagini/casi_usi.png)
+![storico mosse](immagini/storicomosse.png)
 #### classifica giocatori
-![classifica giocatori](immagini/casi_usi.png)
+![classifica giocatori](immagini/classifica.png)
 #### ricarica crediti
-![ricarica crediti](immagini/casi_usi.png)
+![ricarica crediti](immagini/aggiungitoken.png)
 
 # Rotte
 |  Rotta| Tipo |Ruolo|autenticazione|
