@@ -28,7 +28,7 @@ export async function ShowUserRanking(req:any, res:any){
     })
 }
 
-// aggiunge token
+// aggiungi token
 export async function AddToken(req:any, res:any){
 
     try{
@@ -36,6 +36,7 @@ export async function AddToken(req:any, res:any){
         Users.increment(['token'], 
                 {by: Number(req.body.token_add), 
                     where: {email:req.body.opponent}})
+
                     // se non ci sono problemi nel aggiunta di token
                     // messaggio di successo
                     const msg = getErrorMessage(MessagesEnum.AddTokenSuccess).getMessage();
@@ -44,7 +45,7 @@ export async function AddToken(req:any, res:any){
 
                 }catch(err){
 
-                    // se nel operazione di incremento qualcosa è andato storto
+                    // se ci sono problemi nel aggiunta di token
                     // messaggio di errore
                     const msg = getErrorMessage(MessagesEnum.genericSuccess).getMessage();
                     console.log(msg.code + ' : ' + msg.message);

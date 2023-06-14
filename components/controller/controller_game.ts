@@ -90,7 +90,7 @@ export async function AbbandonedGame(req:any, res:any){
 
                 }else 
 
-                // caso in cui l'utente che vuole abbandonare sia 1^ giocatore (player_1)
+                // caso in cui l'utente che vuole abbandonare sia 2^ giocatore (player_1)
                 if(game.player_2 === req.user){
                     Games.update({
                         [Op.and]:
@@ -106,8 +106,9 @@ export async function AbbandonedGame(req:any, res:any){
                     // aggiorna numero partite vinte per abb. in player_1
                     Users.increment(['num_win_ab'], {by:1, where:{email:req.user}})
 
-                    // imposta il gioco come OPEN
-                    Games.update({game_open: 1}, {where: {player_2:req.user}})
+                    // imposta il gioco come non non più disponibile (game_open false)
+                    Games.update({game_open: 0}, {where: {player_2:req.user}})
+                    
                     // imposta partita come abbandonata
                     Games.update({game_abandoned: 1}, {where: {player_2:req.user}})
 
