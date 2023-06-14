@@ -62,7 +62,7 @@ riassunto funzionalità
 ![diagrammi casi d'uso](immagini/casi_usi.png)
 ### Diagrammi delle seguenze
 #### crea nuova partita
-![nuova partita](immagini/creanuovapartita.pngg)
+![nuova partita](immagini/creanuovapartita.png)
 #### effettuare una nuova mossa
 ![nuova mossa](immagini/nuovamossa.png)
 #### controllare stato partita
