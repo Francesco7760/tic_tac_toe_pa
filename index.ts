@@ -13,12 +13,6 @@ const HOST = '0.0.0.0';
 const app = express();
 app.use(express.json());
 
-// [V] validazione Token
-//app.use([
-//    Middleware_jwt.checkHeader,
-//    Middleware_jwt.checkToken,
-//    Middleware_jwt.verifyAndAuthenticate,
-//]);
 
 // [V] rotta per creare una nuova partita
 app.post('/creapartita', [
@@ -44,7 +38,7 @@ app.post('/creanuovamossa',[
     });
 
 // [V] rotta per abbandonare partita
-app.post('/abbandonapartita',[
+app.get('/abbandonapartita',[
     Middleware_jwt.check_jwt,
     Middleware_user.checkEmailPlayer,
     Middleware_user.checkWithOpenGame],
@@ -81,4 +75,4 @@ app.post('/aggiungitoken',[
 });
 
 app.listen(PORT, HOST);
-console.log("Server su ${HOST} ${PORT}");
+console.log("Server on ${HOST}:${PORT}");
