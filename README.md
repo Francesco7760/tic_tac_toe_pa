@@ -19,7 +19,7 @@ Come noto, in tictactoe si gioca su una scacchiera quadrata di 9 caselle, quindi
 
 Il singolo giocatore può effettuare una singola mossa per turno, soltando nella partita che ha in quel momento aperta ed ogni mossa costa 0.015 crediti.
 
- ### ABBANDONARE PARTITA  
+ ### ABBANDONARE PARTITA 
  Il giocatore può scegliere di abbandonare la partita regalando la vittoria al avversario, questo porta ad aggiornamento del resoconto su vittorie e sconfitte. 
 
 ### CONTROLLARE LO STATO DI UNA PARTITA
@@ -84,6 +84,20 @@ riassunto funzionalità
 |/storicomosse|POST|Utente/admin|JWT|
 |/clasifica|POST|Utente|NO|
 |/aggiungitoken|POST|admin|JWT|
+
+### creare certificato per Https
+Innanzitutto, generare una chiave con cifratura rsa, utilizzata per autofirmare il certificato finale. La chiave sarà creata con il comando:
+```
+openssl genrsa -out key.pem
+```
+A seguire, generare un certificato CSR che sarà necessario per creare il certificato vero è proprio. Usiamo il comando:
+```
+openssl req -new -key key.pem -out csr.pem
+```
+Infine, generiamo il nostro certificato fornendo chiave e CSR, sfruttando lo standa x509 e rendeolo valido per 9999 giorni. Usando il comando:
+```
+openssl x509 -req -days 9999 -in csr.pem -signkey key.pem -out cert.pem
+```
 
 ### descrizione rotte
 A sequire verranno descritte la singole rotte nel dettaglio.

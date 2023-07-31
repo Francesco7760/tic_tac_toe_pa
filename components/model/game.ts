@@ -27,15 +27,15 @@ export const Games = sequelize.define('games',{
         references:{
             model:Users,
             key:'email'
-        }
-    },
+                    }
+            },
     player_2: {
         type: DataTypes.STRING,
         references:{
             model:Users,
             key:'email'
-        }
-        },
+                }
+            },
     game_open:{
         type: DataTypes.BOOLEAN,
         defaultValue: 1

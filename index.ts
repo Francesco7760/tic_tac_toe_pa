@@ -1,4 +1,7 @@
 const express = require('express');
+const fs = require('fs');
+const https = require('https');
+
 import * as Middleware_jwt from './components/middleware/middleware_jwt';
 import * as Middleware_user from './components/middleware/middleware_user';
 import * as Middleware_game from './components/middleware/middleware_game';
@@ -10,10 +13,23 @@ import * as Controller_move from './components/controller/controller_move';
 const PORT = 8080;
 const HOST = '0.0.0.0';
 
+var certificate = fs.readFileSync('cert.pem', 'utf8');
+var privateKey  = fs.readFileSync('key.pem', 'utf8');
+var credentials = {key: privateKey, cert: certificate};
+
 const app = express();
-app.use(express.json());
+let httpsServer = https.createServer(credentials, app);
 
+httpsServer.listen(PORT, HOST, () => {
+    console.log(`App listening on port ${HOST}:${PORT} `)
+  });
 
+console.log("Server on " + HOST + ":" + PORT);
+
+app.get('/', (req:any, res:any) => {
+    res.send('tictactoe game');
+  });
+  
 // [V] rotta per creare una nuova partita
 app.post('/creapartita', [
     Middleware_jwt.check_jwt,
@@ -73,6 +89,3 @@ app.post('/aggiungitoken',[
     ], (req:any, res:any) => {
     Controller_user.AddToken(req, res);
 });
-
-app.listen(PORT, HOST);
-console.log("Server on ${HOST}:${PORT}");
