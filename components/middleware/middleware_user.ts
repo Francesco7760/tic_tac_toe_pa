@@ -1,40 +1,12 @@
 const jwt = require('jsonwebtoken');
 import { Users } from '../model/user';
 import { Games } from '../model/game';
-import { MessagesEnum, getErrorMessage} from '../factory/message';
+import { MessagesEnumSuccess, getSuccessMessage, messagePrint} from '../factory/message_succes';
+import { MessagesEnumError, getErrorMessage } from '../factory/message_errors';
+
 import { Op } from "sequelize";
 
-/**
- * [] checkAdmin -> verifica se l'utente che fa richiesta ha privilegi da amministratore
- * 
- * [] checkEmailPlayer ->   verifica se l'utente esite, ovvero controlla se email 
- *                          associata al è presente in database
- * 
- * [] checkEmailOpponent -> verifica se l'utente avversario esite, ovvero controlla 
- *                          se email associata è presente in database
- * 
- * [] checkOpenGame ->  verifica se giocatore ha partite aperte, lo scopo è bloccare la 
- *                      richesta se giocatore ha gia partite aperte 
- * 
- * [] checkOpenGameOpponent->   verifica se giocatore ha partite aperte, lo scopo è bloccare la 
- *                              richesta se giocatore ha gia partite aperte.
- *                              se giochiamo contro IA, non ci interessa se ha gia altre partie 
- *                              attive
- * 
- * [] checkWithOpenGame ->  verifica se utente ha parite aperte, bloca la richesta se non esisto 
- *                          partite aperte
- * 
- * [] checkTokenPlayer ->   verifica se giocatore ha token(crediti) necessari per avviare una 
- *                          partita
- * 
- * [] checkTokenOpponent -> verifica se avversario ha token(crediti) necessari per avviare una 
- *                          partita
- * 
- * [] checkTokenMove -> verificase giocatore ha token(crediti) necessari per effettuare una nuova
- *                      mossa
- * 
- * [] checkYourTurn ->  verifica il turno per fare una mossa è del attuale giocatore
- */
+
 
 // verifica admin
 export async function checkAdmin(req:any,res:any,next:any){
@@ -47,16 +19,17 @@ export async function checkAdmin(req:any,res:any,next:any){
             
             // se i due ruoli coincidono
             // successo
-            console.log("utente admin");
+            const msg = getSuccessMessage(MessagesEnumSuccess.checkAdminSuccess).getMessage();
+            messagePrint(msg, res)
             next();
         }else{
 
             // se non coincidono
             // messaggio di errore
-            const msg = getErrorMessage(MessagesEnum.checkAdminUser).getMessage();
-            console.log(msg.code + ' : ' + msg.message);
-            res.status(msg.code).json(msg.message);
+            const msg = getErrorMessage(MessagesEnumError.checkAdminError).getMessage();
+            messagePrint(msg, res)
         }
+          
     })
     }
 // verifica se player esiste
@@ -71,15 +44,15 @@ export async function checkEmailPlayer(req:any,res:any,next:any){
             
             // se utente non trovato
             // messaggio di errore
-            const msg = getErrorMessage(MessagesEnum.checkEmailPlayerError).getMessage();
-            console.log(msg.code + ' : ' + msg.message);
-            res.status(msg.code).json(msg.message);
+            const msg = getErrorMessage(MessagesEnumError.checkEmailPlayerError).getMessage();
+            messagePrint(msg, res);
         }else{
 
             // se utente trovato
             // successo
+            const msg = getSuccessMessage(MessagesEnumSuccess.checkEmailPlayerSuccess).getMessage();
+            messagePrint(msg, res);            
             next();
-            console.log(' email player right ');
         }
     })
 }
@@ -96,14 +69,14 @@ export async function checkEmailOpponent(req:any,res:any,next:any){
                 
                 // se avversario non trovato
                 // messaggio di errore
-                const msg = getErrorMessage(MessagesEnum.checkEmailOpponentError).getMessage();
-                console.log(msg.code + ' : ' + msg.message);
-                res.status(msg.code).json(msg.message);
+                const msg = getErrorMessage(MessagesEnumError.checkEmailOpponentError).getMessage();
+                messagePrint(msg, res);
             }else{
             
             // se avversario trvato
             // successo
-            console.log(' email opponent right ');
+            const msg = getSuccessMessage(MessagesEnumSuccess.checkEmailOpponentSuccess).getMessage();
+            messagePrint(msg, res);
             next();
             }
         })
@@ -126,15 +99,15 @@ export async function checkOpenGame(req:any,res:any,next:any){
             
             // se giocatore non ha partite aperte
             // successo
-            console.log(' player without open game');
+            const msg = getSuccessMessage(MessagesEnumSuccess.checkOpenGameSuccess).getMessage();
+            messagePrint(msg, res);
             next();
         }else{
 
             // se giocatore ha partite aperte
             // messaggio di errore
-            const msg = getErrorMessage(MessagesEnum.checkOpenGameError).getMessage();
-            console.log(msg.code + ' : ' + msg.message);
-            res.status(msg.code).json(msg.message);
+            const msg = getErrorMessage(MessagesEnumError.checkOpenGameError).getMessage();
+            messagePrint(msg, res);
         }
     })
 }
@@ -160,15 +133,15 @@ export async function checkOpenGameOpponent(req:any,res:any,next:any){
 
             // se non ha partite aperte
             // successo
-            console.log('opponent without open game');
+            const msg = getSuccessMessage(MessagesEnumSuccess.checkEmailOpponentSuccess).getMessage();
+            messagePrint(msg, res);
             next();   
         }else{
 
             // se ha partite aperte
             // messaggiodi errore
-            const msg = getErrorMessage(MessagesEnum.checkOpenGameOpponentError).getMessage();
-            console.log(msg.code + ' : ' + msg.message);
-            res.status(msg.code).json(msg.message);
+            const msg = getErrorMessage(MessagesEnumError.checkOpenGameOpponentError).getMessage();
+            messagePrint(msg, res);
         }
     })}
 
@@ -191,14 +164,14 @@ export async function checkWithOpenGame(req:any,res:any,next:any){
 
             // se non esistono partite aperte
             // messaggio di errore
-            const msg = getErrorMessage(MessagesEnum.checkWithOpenGameErr).getMessage();
-            console.log(msg.code + ' : ' + msg.message);
-            res.status(msg.code).json(msg.message);
+            const msg = getErrorMessage(MessagesEnumError.checkWithOpenGameError).getMessage();
+            messagePrint(msg, res);
         }else{
 
             // se esiste una partita aperta
             // messaggio di successo
-            console.log(' player with open game ');
+            const msg = getSuccessMessage(MessagesEnumSuccess.checkWithOpenGameSuccess).getMessage();
+            messagePrint(msg, res);
             next();
         }
     })
@@ -220,16 +193,16 @@ export async function checkTokenPlayer(req:any,res:any,next:any) {
                 
                 // crediti maggiori di 0.75
                 // successo
-                console.log(' player`s token right');
+                const msg = getSuccessMessage(MessagesEnumSuccess.checkTokenPlayerSuccess).getMessage();
+                messagePrint(msg, res);
                 next();
 
             }else{
 
                 // crediti inferiori di 0.75
                 // messaggio di errore
-                const msg = getErrorMessage(MessagesEnum.checkTokenPlayerErr).getMessage();
-                console.log(msg.code + ' : ' + msg.message);
-                res.status(msg.code).json(msg.message);
+                const msg = getErrorMessage(MessagesEnumError.checkTokenPlayerError).getMessage();
+                messagePrint(msg, res);
             }
             
         }else{
@@ -238,15 +211,15 @@ export async function checkTokenPlayer(req:any,res:any,next:any) {
 
                 // crediti superiori di 0.5
                 // successo
-                console.log(' player`s token right');
+                const msg = getSuccessMessage(MessagesEnumSuccess.checkTokenPlayerSuccess).getMessage();
+                messagePrint(msg, res);
                 next();
             }else{
 
                 // crediti inferiori a 0.50
                 // messaggio di errore
-                const msg = getErrorMessage(MessagesEnum.checkTokenPlayerErr).getMessage();
-                console.log(msg.code + ' : ' + msg.message);
-                res.status(msg.code).json(msg.message);
+                const msg = getErrorMessage(MessagesEnumError.checkTokenPlayerError).getMessage();
+                messagePrint(msg, res);
             }
         }
     })
@@ -268,23 +241,24 @@ export async function checkTokenOpponent(req:any,res:any,next:any) {
 
                 // crediti superiori a 0.75
                 // successo
-                console.log(' oppponent`s token right');
+                const msg = getSuccessMessage(MessagesEnumSuccess.checkTokenOpponentSuccess).getMessage();
+                messagePrint(msg, res);
                 next();
             
         }else{
                 // crediti inferiori a 0.75
                 // messaggio di errore
-                const msg = getErrorMessage(MessagesEnum.checkTokenOpponentErr).getMessage();
-                console.log(msg.code + ' : ' + msg.message);
-                res.status(msg.code).json(msg.message);
+                const msg = getErrorMessage(MessagesEnumError.checkTokenOpponentError).getMessage();
+                messagePrint(msg, res);
             }
             
         }else{
 
             // non ci sono problemi su token per IA
             // successo
-            console.log(' oppponent`s token right');
-            next(); 
+            const msg = getSuccessMessage(MessagesEnumSuccess.checkTokenOpponentSuccess).getMessage();
+            messagePrint(msg, res);
+            next();
         }
     })
 }
@@ -302,16 +276,16 @@ export async function checkTokenMove(req: any, res: any, next: any){
 
                 // crediti superiori a 0.015
                 // successo
-                console.log(' player`s token right ');
+                const msg = getSuccessMessage(MessagesEnumSuccess.checkTokenMoveSuccess).getMessage();
+                messagePrint(msg, res);
                 next();
 
             }else{
 
                 // crediti inferiori a 0.015
                 // messaggio di errore
-                const msg = getErrorMessage(MessagesEnum.checkTokenPlayerErr).getMessage();
-                console.log(msg.code + ' : ' + msg.message);
-                res.status(msg.code).json(msg.message);
+                const msg = getErrorMessage(MessagesEnumError.checkTokenMoveError).getMessage();
+                messagePrint(msg, res);
             }
         }
     )
@@ -335,16 +309,16 @@ export async function checkYourTurn(req: any, res: any, next: any){
 
             // se è il turno dal giocatore
             // successo
-            console.log(' your turn ');
+            const msg = getSuccessMessage(MessagesEnumSuccess.checkYourTurnSuccess).getMessage();
+            messagePrint(msg, res);
             next();
             
         }else{
 
             // se non è il turno del giocatore
             // messaggio di errore
-            const msg = getErrorMessage(MessagesEnum.checkYourTurnErr).getMessage();
-            console.log(msg.code + ' : ' + msg.message);
-            res.status(msg.code).json(msg.message);
+            const msg = getErrorMessage(MessagesEnumError.checkYourTurnError).getMessage();
+            messagePrint(msg, res);
         }
     })
 

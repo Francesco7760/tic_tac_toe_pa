@@ -1,17 +1,6 @@
-require('dotenv').config();
 const jwt = require('jsonwebtoken');
-import { MessagesEnum} from "../factory/message";
 
-/**
- * [] checkHeader -> verifica la presenza della voce authorization nel headers della richiesta
- * 
- * [] checkToken -> verifica se nella richesta sia presente un token jwt
- * 
- * [] verifyAndAuthenticate -> verifica se l'autenticita del token confrontando una chiave segreta
- * 
- *  i tre middleware sono stati raccolti, per poter essere usti in futuro su richieste 
- *  che necessitano di autentificazione tramite token jwt
- */
+import { MessagesEnumSuccess, getSuccessMessage, messagePrint} from '../factory/message_succes';
 
 // check headers
 export const checkHeader = (req: any, res: any, next: any) => {
@@ -21,15 +10,15 @@ export const checkHeader = (req: any, res: any, next: any) => {
 
             // se headers authorization presente
             // messaggio di successo
-            console.log("success headers");
+            const msg = getSuccessMessage(MessagesEnumSuccess.checkHeaderSuccess).getMessage();
+            messagePrint(msg, res);
             next();
         }
     }catch(error){
 
         // se headers authorization non è presente
         // messaggio di successo
-        console.log("error headers");
-        next(MessagesEnum.checkHeaderError);
+        messagePrint(error, res);
     }
 }
 
@@ -43,15 +32,15 @@ export const checkToken = (req: any, res: any, next: any) => {
 
             // se token jwt presente
             // messaggio di successo
-            console.log("success token");
+            const msg = getSuccessMessage(MessagesEnumSuccess.checkTokenSuccess).getMessage();
+            messagePrint(msg, res);
             next();
         }
         }catch(error){
 
         // se token jwt non presente 
         // messaggio di errore
-        console.log("errore token");
-        next(MessagesEnum.checkTokenError);
+        messagePrint(error, res);
     }
 }
 
@@ -69,19 +58,15 @@ export const verifyAndAuthenticate = (req: any, res: any, next: any) => {
             req.user = player.email;
 
             // messaggio di successo
-            console.log("success auth");
+            const msg = getSuccessMessage(MessagesEnumSuccess.verifyAndAuthenticateSuccess).getMessage();
+            messagePrint(msg, res);
             next();
         }
     }catch(error){
 
         //messaggio di errroe
-        console.log("error auth");
-        next(MessagesEnum.verifyAndAuthenticateError);
+        messagePrint(error, res);
+
     }
 }
 
-export const check_jwt = [
-    checkHeader,
-    checkToken,
-    verifyAndAuthenticate
-]

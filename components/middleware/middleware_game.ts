@@ -1,10 +1,7 @@
 import { Games } from '../model/game';
-import { MessagesEnum, getErrorMessage} from '../factory/message';
 
-/**
- * [] checkGameExists ->    verifica se la partita considerata sia presente in database
- *                          in caso affermativo si prosengue con la richiesta 
- */
+import { MessagesEnumError, getErrorMessage} from '../factory/message_errors';
+import { MessagesEnumSuccess, getSuccessMessage, messagePrint} from '../factory/message_succes';
 
 
 export async function checkGameExists(req:any,res:any,next:any){
@@ -17,14 +14,14 @@ export async function checkGameExists(req:any,res:any,next:any){
 
                 // se partita non esiste 
                 // messaggio di errore
-                const msg = getErrorMessage(MessagesEnum.checkGameExistsErr).getMessage();
-                console.log(msg.code + ' : ' + msg.message);
-                res.status(msg.code).json(msg.message);
+                const msg = getErrorMessage(MessagesEnumError.checkGameExistsError).getMessage();
+                messagePrint(msg, res);
             }else{
 
                 // se partita esiste
                 // successo
-                console.log(' game exists ');
+                const msg = getSuccessMessage(MessagesEnumSuccess.checkGameExistsSuccess).getMessage();
+                messagePrint(msg, res);
                 next();    
         }
     })
