@@ -1,6 +1,5 @@
 import {Sequelize} from 'sequelize';
 
-
 export class db_connection {
 
     private static instance: db_connection;
