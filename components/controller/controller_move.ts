@@ -1,7 +1,7 @@
 import{Games, setTurnNextPLayer} from '../model/game';
 import {Moves, newMove } from '../model/move';
 import { Op } from "sequelize";
-import { MessagesEnum, getErrorMessage} from '../factory/message';
+import { MessagesEnum, getErrorMessage} from '../factory/message_errors';
 import { Users } from '../model/user';
 const parse_csv = require('json2csv');
 const ttt_engine = require("tic-tac-toe-ai-engine");
@@ -20,16 +20,17 @@ const ttt_engine = require("tic-tac-toe-ai-engine");
 
 // crea una nuova mossa
 export  async function CreateMove(req:any, res:any){
-    
+
+    try{
     // cerca patita aperta per l'utente
-  await Games.findOne({        
-        where:{
-        [Op.and]: [{game_open: 1},
-            {
-        [Op.or]:[{player_1:req.user},{player_2:req.user}]
-            }]
-            }
-        }).then((game:any) => {
+        await Games.findOne({        
+            where:{
+            [Op.and]: [{game_open: 1},
+                {
+            [Op.or]:[{player_1:req.user},{player_2:req.user}]
+                }]
+                }
+            }).then((game:any) => {
 
             // ultima mossa fatta in partita
             let game_state_last_array = JSON.parse(game.game_state_last);
@@ -79,22 +80,25 @@ export  async function CreateMove(req:any, res:any){
 
                 // cambia turn giocatore nella partita
                 setTurnNextPLayer(game.game_id, req.user)
-            }
+                }
 
-        }else{
+            }else{
                 // mesasggio mossa non consentita
                 const msg = getErrorMessage(MessagesEnum.CreateMoveErr).getMessage();
                 console.log(msg.code + ' : ' + msg.message);
                 res.status(msg.code).json(msg.message);  
             }
            
-        })
+        })}catch(error){
+            console.log(error);
+        }
 
 }
 
 // mostra storico mosse di una data partita 
 export async function ShowMovesGame(req:any, res:any){
-    
+
+    try{
     // cerca tutte le mosse di una data partita
     await Moves.findAll({
         attributes : ['player','game','game_state','start'],
@@ -138,6 +142,8 @@ export async function ShowMovesGame(req:any, res:any){
             console.log(msg.code + ' : ' + msg.message);
             res.status(msg.code).json(msg.message);
         }
-    })
+    })}catch(error){
+        console.log(error);
+    }
 }
 

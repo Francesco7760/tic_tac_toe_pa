@@ -1,31 +1,20 @@
-require('dotenv').config();
-import { Users } from '../model/user';
+import { Users, incrementToken } from '../model/user';
 import { Games , newGame} from '../model/game';
 import { Op } from "sequelize";
-import { MessagesEnum, getErrorMessage} from '../factory/message';
+import { MessagesEnum, getErrorMessage} from '../factory/message_errors';
 
-/**
- * [] CreateNewGame ->  crea una nuova partita considerando l'avversario umano o IA,
- *                      inoltre tiene conto dei token necesari per avviare una partita
- *                      per entrambi i giocatori   
-
- * [] AbbandonedGame -> permette di abbandonara la partita che l'utente che fa richiesta 
- *                      sta giocando. A partita abbandonata setta il vincitore e il numero 
- *                      di partite vinte o perse per abbandono per i 2 giocatori
- * 
- * [] ShowInfoGame ->   mostra tutte le info richieste sulle partite giocate e terminate
- *                      fino ad ora 
- */
+import * as Values from "../utils/values"
 
 // crea una nuova partita da giocare
 export async function CreateNewGame(req:any, res:any){
 
-        if(req.body.opponent === "IA"){
+    try{
+        
+        if(req.body.opponent === Values.vs_computer){
                 // sottrai token
-                Users.decrement(['token'], 
-                {by:0.75, where: {email:req.user}})
-                // crea partita
-                newGame(req.user, "IA", req.user, req.user);
+                incrementToken(req.user, -Number(Values.price_new_game_IA));
+                // crea partita contro IA
+                newGame(req.user, Values.vs_computer, req.user, req.user);
 
                 // messaggio di successo
                 const msg = getErrorMessage(MessagesEnum.gameCreateSuccess).getMessage();
@@ -34,22 +23,25 @@ export async function CreateNewGame(req:any, res:any){
             }
             else{       
                 // sottrai token ad entrambi
-                Users.decrement(['token'], 
-                {by:0.5, where: {email:req.user}})
-                Users.decrement(['token'], 
-                {by:0.5, where: {email:req.body.opponent}})
-                // crea nuova partita
+                incrementToken(req.user, -Number(Values.price_new_game));
+                incrementToken(req.body.opponent, -Number(Values.price_new_game)); 
+                // crea partita contro avversario
                 newGame(req.user, req.body.opponent, req.user, req.user);
 
                 // messaggio di successo
                 const msg = getErrorMessage(MessagesEnum.gameCreateSuccess).getMessage();
                 console.log(msg.code + ' : ' + msg.message);
                 res.status(msg.code).json(msg.message);
+        }}
+        catch(error){
+            console.log(error);
         }                
 }
+
 // abbandona partita
 export async function AbbandonedGame(req:any, res:any){
 
+    try{
         // cerca la partita aperta del utente che fa la richiesta di abbandono
         await Games.findOne({
         where:{
@@ -123,13 +115,16 @@ export async function AbbandonedGame(req:any, res:any){
                     console.log(msg.code + ' : ' + msg.message);
                     res.status(msg.code).json(msg.message);
                 }
-            })
+            })}catch(error){
+                console.log(error);
+            }
     
 }
 
 // mostra informazioni sulla partita 
 export async function ShowInfoGame(req:any, res:any){
-    
+  
+    try{
     // cerca la partita desiderata
     await Games.findOne({
         attributes: ['player_1','player_2','game_open','game_abandoned','winner'],
@@ -152,4 +147,7 @@ export async function ShowInfoGame(req:any, res:any){
             res.status(msg.code).json({game});
         }
     })
+    }catch(error){
+        console.log(error)
+    }
 }

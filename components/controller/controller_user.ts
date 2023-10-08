@@ -1,5 +1,5 @@
 import { Users } from '../model/user';
-import { MessagesEnum, getErrorMessage} from '../factory/message';
+import { MessagesEnum, getErrorMessage} from '../factory/message_errors';
 
 /**
  * 
@@ -13,7 +13,7 @@ import { MessagesEnum, getErrorMessage} from '../factory/message';
 
 // classifica giocatori
 export async function ShowUserRanking(req:any, res:any){
-
+try{
     await Users.findAll({
 
         attributes: [['email', 'player'],'num_win','num_win_ab','num_win_vs_ia','num_lose','num_lose_ab','num_lose_vs_ia'],
@@ -25,7 +25,10 @@ export async function ShowUserRanking(req:any, res:any){
         const msg = getErrorMessage(MessagesEnum.genericSuccess).getMessage();
         console.log(msg.code + ' : ' + msg.message);
         res.status(msg.code).json({ranking});
-    })
+    })}
+    catch(error){
+        console.log(error);
+    }
 }
 
 // aggiungi token
