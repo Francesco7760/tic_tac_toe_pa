@@ -1,11 +1,13 @@
 import { DataTypes, Sequelize } from "sequelize"; 
 import { db_connection } from '../singleton/db_connection';
 
+import * as Values from "../utils/values"
+
 // connette al db
 const sequelize: Sequelize = db_connection.getConnection();
 
 /**
- * [] Users -> model 'user'
+ * [] Users -> model 'users'
  */
 
 export const Users = sequelize.define('users',{
@@ -14,7 +16,7 @@ export const Users = sequelize.define('users',{
         primaryKey: true,
     },
     role:{
-        type:DataTypes.STRING,
+        type: DataTypes.ENUM({values: Values.role_user}),
         allowNull: false,
     }, 
     token:{
@@ -50,3 +52,17 @@ export const Users = sequelize.define('users',{
     modelName: 'users',
     timestamps: false
 });
+
+
+export async function incrementToken(UserEmail:string, Token:number) {
+
+    try{
+
+        Users.increment(['token'],
+        {by:Token, where: {email:UserEmail}})
+
+    }catch(error){
+        console.log(error);
+    }
+    
+}
